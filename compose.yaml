@@ -1,0 +1,21 @@
+services:
+  dashboard:
+    build: .
+    image: mogura:local
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 30s
+    ports:
+      - "${BIND_ADDRESS:-127.0.0.1}:${DASHBOARD_PORT:-3000}:3000"
+    environment:
+      APP_ORIGIN: ${APP_ORIGIN:-http://localhost:3000}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      CLOUDFLARE_ACCOUNT_ID: ${CLOUDFLARE_ACCOUNT_ID:-}
+      CLOUDFLARE_API_TOKEN: ${CLOUDFLARE_API_TOKEN:-}
+      CLOUDFLARE_API_KEY: ${CLOUDFLARE_API_KEY:-}
+      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL:-}
+    volumes:
+      - dashboard-data:/data
+
+volumes:
+  dashboard-data:

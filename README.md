@@ -112,4 +112,25 @@ bun run build
 
 To run a production build outside Docker, run `bun run build` followed by `NODE_ENV=production bun run start`. The server defaults to `0.0.0.0:3000`. Keep `.data/` persistent, or configure `SESSION_SECRET_FILE` and `CREDENTIALS_FILE` to persistent paths. Configure `APP_ORIGIN` for your deployment.
 
+## Container images and releases
+
+The [Docker image workflow](.github/workflows/docker.yml) builds Linux AMD64 and ARM64 images and publishes them to **`ghcr.io/pitu/mogura`**. The Docker build runs the typecheck, tests, and production build before publishing.
+
+| Event | Published image tags |
+| --- | --- |
+| Push to `main`, or a manual workflow run on `main` | `edge`, `sha-<full commit SHA>` |
+| Publish a GitHub Release tagged `v0.1.0` | `0.1.0`, `latest`, `sha-<full commit SHA>` |
+| Publish a prerelease, such as `v0.2.0-beta.1` | `0.2.0-beta.1`, `sha-<full commit SHA>`; leaves `latest` unchanged |
+| Pull request | Builds and checks both platforms without publishing |
+
+Releases are deliberate. Routine pushes do not create GitHub Releases or update `latest`. Use an exact version tag for a deployment you want to keep stable; `edge` follows development on `main`.
+
+To release:
+
+1. Set `version` in `package.json` to the release version, starting with `0.1.0`, and merge or push the change to `main`.
+2. In GitHub, open **Releases → Draft a new release**. Create the matching `v0.1.0` tag from `main`, write or generate release notes, and publish it.
+3. Wait for the **Docker image** workflow to succeed. The image appears under the repository's **Packages** section. The workflow rejects release tags that do not match `package.json`.
+
+No custom registry secret is needed: publishing uses the repository's `GITHUB_TOKEN`. After the first publication, open the package's settings and change its visibility to **Public** to allow pulls without signing in. Container packages start private, even for a public repository. See [GitHub's Container registry documentation](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+
 Mogura is an independent project and is not affiliated with Cloudflare.

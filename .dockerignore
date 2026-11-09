@@ -4,6 +4,7 @@ dist
 .output
 .tanstack
 .git
+.github
 .env
 .env.*
 *.log
